@@ -4,6 +4,7 @@ namespace core\routing;
 use core\controller\ControllerLoader;
 use core\Request;
 use core\Response;
+use Exception;
 
 /**
  * Routes HTTP requests to actions
@@ -86,23 +87,26 @@ class Router {
 		$controller = $this->controllers->load($controllerName);
 
 		if(!is_callable(array($controller, $methodName))){
-			throw new \Exception("Could not call action method $methodName on class $controllerName.");
+            throw new Exception("Could not call action method $methodName on class $controllerName.");
 		}
 
 		return call_user_func_array(array($controller, $methodName), array());
 	}
 
-	/**
-	 * This will take a route (or lack of) and return some kind of request (eg not supported or not found redirect
-	 * or ideally a processed Route from a controlller)
-	 *
-	 * @param  Request  $request
-	 * @return Response - a Response of some type should get returned whatever happens (unless some kind of
-	 * exception is thrown)
-	 */
+    /**
+     * This will take a route (or lack of) and return some kind of request (eg not supported or not found redirect
+     * or ideally a processed Route from a controlller)
+     *
+     * @param Request $request
+     * @param Route|null $route the current route
+     * @return Response - a Response of some type should get returned whatever happens (unless some kind of
+     * exception is thrown)
+     * @throws Exception
+     */
 	protected function getResponse(Request $request, Route $route = null) {
 
-		// if we can find a route then do the business...
+        $request->setRoute($route);
+        // if we can find a route then do the business...
 		if ($route) {
 
 			$response = $this->runController($route, $request);
@@ -110,7 +114,7 @@ class Router {
 			// currently this is for graceful fallback as the old method does not return anything
 			// so we need to cater for those functions too by checking to see if something is returned
 			if (!($response instanceof Response)) {
-				throw new \Exception('Invalid response, no Response class returned');
+                throw new Exception('Invalid response, no Response class returned');
 			}
 
 			return $response;
@@ -133,7 +137,6 @@ class Router {
 	public function dispatch(Request $request){
 
 		$route = $this->findRoute($request->getPath(), $request->getMethod());
-
 		return $this->getResponse($request, $route);
 	}
 

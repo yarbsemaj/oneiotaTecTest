@@ -1,191 +1,239 @@
 <?php
 namespace core;
 
+use core\routing\Route;
+
 /**
  * Represents a request coming in
  **/
 class Request {
 
-	protected $params;
-	protected $data;
+    protected $params;
+    protected $urlPrams;
+    protected $route;
+    protected $data;
 
-	/**
-	 * At the beginning we'll just sort out the various inputs
-	 */
-	public function __construct(){
-		$this->initialiseParams();
-	}
+    /**
+     * At the beginning we'll just sort out the various inputs
+     */
+    public function __construct(){
+        $this->initialiseParams();
+    }
 
-	/**
-	 * Alias for file_get_contents('php://input')
-	 *
-	 * @return string Content of php://input
-	 **/
-	private function getInputStream($returnArray = false){
-		return file_get_contents('php://input');
-	}
+    /**
+     * Alias for file_get_contents('php://input')
+     *
+     * @return string Content of php://input
+     **/
+    private function getInputStream($returnArray = false){
+        return file_get_contents('php://input');
+    }
 
-	/**
-	 * Sort our incoming data out
-	 */
-	private function initialiseParams(){
+    /**
+     * Sort our incoming data out
+     */
+    private function initialiseParams(){
 
-		$this->params = $_REQUEST;
-		switch ($this->getMethod()) {
-			case 'PUT':
-			case 'POST':
-				$this->data = $this->getInputStream();
-				break;
-		}
-	}
+        $this->params = $_REQUEST;
+        switch ($this->getMethod()) {
+            case 'PUT':
+            case 'POST':
+                $this->data = $this->getInputStream();
+                break;
+        }
+    }
 
-	/**
-	 * Simple getter for all the params
-	 * @return array
-	 */
-	public function getParams(){
-		return $this->params;
-	}
+    /**
+     * Sets the current route
+     * @param Route $route
+     */
+    public function setRoute(Route $route)
+    {
+        $this->route = $route;
+    }
 
-	/**
-	 * Simple getter to return the retreived raw data
-	 * @return string
-	 */
-	public function getData(){
-		return $this->data;
-	}
+    /**
+     * Gets the current route
+     * @return Route
+     */
+    public function getRoute()
+    {
+        return $this->route;
+    }
 
-	/**
-	 * Wrapper to get the JSON data sent
-	 * @return mixed
-	 */
-	public function getJson() {
-		return json_decode($this->getData());
-	}
 
-	/**
-	 * Allows for convenient use of $request->someParam
-	 *
-	 * @param  string $key
-	 * @return mixed
-	 */
-	public function __get($key) {
-		return isset($this->params[$key]) ? $this->params[$key] : NULL;
-	}
+    /**
+     * Get url prams from
+     */
+    private function initialiseURLParams()
+    {
+        if (!isset($this->urlPrams)) {
+            preg_match_all('/{(.\S*?)}/', $this->getRoute()->getPattern(), $urlParamNames);
 
-	/**
-	 * Overloaded to allow for null properties.
-	 */
-	public function __isset($key) {
-		return array_key_exists($key, $this->params);
-	}
+            $patten = str_replace('/', '\/', $this->getRoute()->getPattern());
+            $patten = preg_replace('/{\S+}/', '(.\S*?)', $patten);
+            $patten = '/^' . $patten . '$/';
 
-	/**
-	 * Get the request verb
-	 *
-	 * @return string - The request verb (GET, POST, PUT or DELETE).
-	 **/
-	public function getMethod(){
-		return strtoupper($_SERVER['REQUEST_METHOD']);
-	}
+            $path = trim($this->getPath(), '/');
+            preg_match_all($patten, $path, $urlPramValues);
+            $this->urlPrams = array_combine($urlParamNames[1], $urlPramValues[1]);
+        }
+    }
 
-	/**
-	 * Returns specified HTTP headers
-	 *
-	 * @param  string $header
-	 * @return string|null
-	 */
-	public function getHeader($header) {
-		$header = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
-		return isset($_SERVER[$header]) ? $_SERVER[$header] : null;
-	}
+    /**
+     * Simple getter for all the params
+     * @return array
+     */
+    public function getParams(){
+        return $this->params;
+    }
 
-	/**
-	 * Get the full current URL here.
-	 *
-	 * @return string
-	 */
-	public function getURL() {
+    /**
+     * Simple getter to return the retreived raw data
+     * @return string
+     */
+    public function getData(){
+        return $this->data;
+    }
 
-		$protocol = $this->getProtocol();
-		$serverName = $this->getHost();
-		$port = $this->getPort();
+    /**
+     * Wrapper to get the JSON data sent
+     * @return mixed
+     */
+    public function getJson() {
+        return json_decode($this->getData());
+    }
 
-		return $protocol . '://' . $serverName . ($port ? ':' . $port : '') . $this->getRequestUri();
-	}
+    /**
+     * Allows for convenient use of $request->someParam
+     * @param  string $key
+     * @return mixed
+     */
+    public function __get($key) {
+        $this->initialiseURLParams();
+        if (isset($this->params[$key])) {
+            return $this->params[$key];
+        }
+        if (isset($this->urlPrams[$key])) {
+            return $this->urlPrams[$key];
+        }
+        return null;
+    }
 
-	/**
-	 * Return if this request is via HTTPS or not.
-	 *
-	 * @return bool
-	 */
-	public function isHttps() {
-		return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
-	}
+    /**
+     * Overloaded to allow for null properties.
+     */
+    public function __isset($key) {
+        $this->initialiseURLParams();
+        return array_key_exists($key, $this->params) || array_key_exists($key, $this->urlPrams);
+    }
 
-	/**
-	 * Get the full request URI from the server data.
-	 *
-	 * @return string
-	 */
-	public function getRequestUri() {
-		return isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : false;
-	}
+    /**
+     * Get the request verb
+     *
+     * @return string - The request verb (GET, POST, PUT or DELETE).
+     **/
+    public function getMethod(){
+        return strtoupper($_SERVER['REQUEST_METHOD']);
+    }
 
-	/**
-	 * Get the raw query string from the server data if the params themselves are
-	 * not adequate
-	 *
-	 * @return string
-	 */
-	public function getQueryString() {
-		return isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : false;
-	}
+    /**
+     * Returns specified HTTP headers
+     *
+     * @param  string $header
+     * @return string|null
+     */
+    public function getHeader($header) {
+        $header = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
+        return isset($_SERVER[$header]) ? $_SERVER[$header] : null;
+    }
 
-	/**
-	 * Get the path of the request
-	 *
-	 * @return string
-	 */
-	public function getPath() {
-		return strtok($this->getRequestUri(), '?');
-	}
+    /**
+     * Get the full current URL here.
+     *
+     * @return string
+     */
+    public function getURL() {
 
-	/**
-	 * Get the request protocol (http or https)
-	 *
-	 * @return string
-	 */
-	public function getProtocol() {
-		return $this->isHttps() ? 'https' : 'http';
-	}
+        $protocol = $this->getProtocol();
+        $serverName = $this->getHost();
+        $port = $this->getPort();
 
-	/**
-	 * Returns the hostname.
-	 *
-	 * @return string
-	 */
-	public function getHost() {
-		return (isset($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : $this->getHeader('Host');
-	}
+        return $protocol . '://' . $serverName . ($port ? ':' . $port : '') . $this->getRequestUri();
+    }
 
-	/**
-	 * Returns the port of the current request if it's anything other than the default '80'
-	 *
-	 * @return string|boolean
-	 */
-	public function getPort() {
-		$port = $_SERVER["SERVER_PORT"];
-		return ($port != "80" && (!$this->isHttps() || $port != '443')) ? $port : false;
-	}
+    /**
+     * Return if this request is via HTTPS or not.
+     *
+     * @return bool
+     */
+    public function isHttps() {
+        return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    }
 
-	/**
-	 * Get the IP of the request.
-	 *
-	 * @return string - IP address.
-	 **/
-	public function getIP(){
-		return $_SERVER['REMOTE_ADDR'];
-	}
+    /**
+     * Get the full request URI from the server data.
+     *
+     * @return string
+     */
+    public function getRequestUri() {
+        return isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : false;
+    }
+
+    /**
+     * Get the raw query string from the server data if the params themselves are
+     * not adequate
+     *
+     * @return string
+     */
+    public function getQueryString() {
+        return isset($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : false;
+    }
+
+    /**
+     * Get the path of the request
+     *
+     * @return string
+     */
+    public function getPath() {
+        return strtok($this->getRequestUri(), '?');
+    }
+
+    /**
+     * Get the request protocol (http or https)
+     *
+     * @return string
+     */
+    public function getProtocol() {
+        return $this->isHttps() ? 'https' : 'http';
+    }
+
+    /**
+     * Returns the hostname.
+     *
+     * @return string
+     */
+    public function getHost() {
+        return (isset($_SERVER['SERVER_NAME'])) ? $_SERVER['SERVER_NAME'] : $this->getHeader('Host');
+    }
+
+    /**
+     * Returns the port of the current request if it's anything other than the default '80'
+     *
+     * @return string|boolean
+     */
+    public function getPort() {
+        $port = $_SERVER["SERVER_PORT"];
+        return ($port != "80" && (!$this->isHttps() || $port != '443')) ? $port : false;
+    }
+
+    /**
+     * Get the IP of the request.
+     *
+     * @return string - IP address.
+     **/
+    public function getIP(){
+        return $_SERVER['REMOTE_ADDR'];
+    }
 
 }

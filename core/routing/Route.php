@@ -47,7 +47,10 @@ class Route {
 	 * @return boolean TRUE if path matches route, FALSE otherwise.
 	 */
 	public function doesMatch($path, $method = 'GET'){
-		return $path == $this->pattern && array_key_exists($method, $this->methods);
+        $patten = str_replace('/', '\/', $this->pattern);
+        $patten = preg_replace('/{\S+}/', '\S+', $patten);
+        $patten = '/^' . $patten . '$/';
+        return preg_match($patten, $path) && array_key_exists($method, $this->methods);
 	}
 
 
