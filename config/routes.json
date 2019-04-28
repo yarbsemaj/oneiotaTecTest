@@ -1,0 +1,51 @@
+[
+	{
+		"controller": "products",
+		"methods": {
+			"GET": "all"
+		},
+		"pattern": ""
+	},
+	{
+		"controller": "products",
+		"methods": {
+			"GET": "all"
+		},
+		"pattern": "products"
+	},
+	{
+		"controller": "pages",
+		"methods": {
+			"GET": "faqs"
+		},
+		"pattern": "page/faqs"
+	},
+	{
+		"controller": "pages",
+		"methods": {
+			"GET": "delivery"
+		},
+		"pattern": "page/delivery"
+	},
+	{
+		"controller": "pages",
+		"methods": {
+			"GET": "tshirts"
+		},
+		"pattern": "page/t-shirts-and-vests"
+	},
+	{
+		"controller": "pages",
+		"methods": {
+			"GET": "trainers"
+		},
+		"pattern": "page/trainers-and-boots"
+	},
+	{
+		"controller": "pages",
+		"methods": {
+			"GET": "offers"
+		},
+		"pattern": "page/special-offers"
+	}
+]

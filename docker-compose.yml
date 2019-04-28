@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+    - 8080:80
+    - 4430:443
+    volumes:
+    - ./:/var/www/php-task
+    - ./nginx/default.conf:/var/www/html/conf/nginx/nginx-site.conf
+    environment:
+      WEBROOT: '/var/www/php-task/www'
+      ENABLE_XDEBUG: 1
+      XDEBUG_CONFIG: remote_host=your.local.ip.here
+      PHP_IDE_CONFIG: serverName=NameUsedInPhpStormServerConfig

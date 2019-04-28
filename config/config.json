@@ -1,0 +1,5 @@
+{
+	"BASE_URL": "http://oneiota.local/",
+	"DATA_FOLDER": "/data",
+	"ROUTES_FILE": "routes.json"
+}
