@@ -6,6 +6,9 @@
     * Access by name via magic get in the Request class.
 * Quick view model implemented as described in the supplied PDF.
 
+### Note
+Page load times, including the quick view winodos can be spuradic, from bestI can tell this is due to the dead image links and not an issue with the underlying code itself.
+
 ### Set up
 
 This project comes with a Dockerfile and a docker-compose.yml for using Docker compose to build the PHP environment. Please find information [here](https://docs.docker.com/compose/install/) for installing Docker Compose if you have not already.
