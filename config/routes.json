@@ -9,6 +9,13 @@
 	{
 		"controller": "products",
 		"methods": {
+			"GET": "quickView"
+		},
+		"pattern": "quickview/{id}"
+	},
+	{
+		"controller": "products",
+		"methods": {
 			"GET": "all"
 		},
 		"pattern": "products"

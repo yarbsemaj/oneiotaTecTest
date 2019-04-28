@@ -18,4 +18,15 @@ class ProductMapper extends AbstractMapper
 			}
 		}
 	}
+
+    public function findByID($sku)
+    {
+        $items = $this->all();
+
+        foreach ($items as $item) {
+            if ($item->id == $sku) {
+                return $item;
+            }
+        }
+    }
 }

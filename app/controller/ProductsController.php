@@ -20,4 +20,18 @@ class ProductsController extends AppController
 
 		return $response;
 	}
+
+    public function quickView()
+    {
+        $mapper = $this->mappers->load('Product');
+
+        $product = $mapper->findByID($this->request->id);
+
+        $content = $this->view->render('products/quickView/fragment', array('product' => $product));
+
+        $response = new Response();
+        $response->ok($content);
+
+        return $response;
+    }
 }
