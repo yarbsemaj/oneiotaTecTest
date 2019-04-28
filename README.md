@@ -1,5 +1,11 @@
 # One iota WebApps PHP Task
 
+### Changes
+* Route parameters now supported
+    * Wrap route parameters in parentheses {}
+    * Access via magic get in the Request class by name
+* Quick view model implemented as described in the supplied PDF
+
 ### Set up
 
 This project comes with a Dockerfile and a docker-compose.yml for using Docker compose to build the PHP environment. Please find information [here](https://docs.docker.com/compose/install/) for installing Docker Compose if you have not already.
@@ -15,7 +21,7 @@ The image we use has both nginx & php-fpm on the following versions:
 
 ### Run 
 
-A Makefile has been included for convinience, run the following command to start the environment:
+A Makefile has been included for convenience, run the following command to start the environment:
 
 ```
 make up
