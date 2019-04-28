@@ -45,9 +45,9 @@ class Request {
 
     /**
      * Sets the current route
-     * @param Route $route
+     * @param Route|null $route
      */
-    public function setRoute(Route $route)
+    public function setRoute($route)
     {
         $this->route = $route;
     }
