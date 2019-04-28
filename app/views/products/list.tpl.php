@@ -9,3 +9,5 @@
 </div>
 
 <div class="clear"></div>
+
+<?php echo $this->render('products/quickView/container'); ?>

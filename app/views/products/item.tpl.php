@@ -5,5 +5,6 @@
 <div class="product-details">
 	<h4>&pound;<?php echo $product->price->amount; ?></h4>
 
-	<button data-sku="<?php echo $product->SKU ?>" >Quick View</button>
+    <button class="quick-view" data-sku="<?php echo $product->SKU ?>" data-id="<?php echo $product->id ?>">Quick View
+    </button>
 </div>
