@@ -1,10 +1,10 @@
 # One iota WebApps PHP Task
 
 ### Changes
-* Route parameters now supported
-    * Wrap route parameters in parentheses {}
-    * Access via magic get in the Request class by name
-* Quick view model implemented as described in the supplied PDF
+* Route parameters now supported!
+    * Wrap route parameters in parentheses {}.
+    * Access via magic get in the Request class by name.
+* Quick view model implemented as described in the supplied PDF.
 
 ### Set up
 

@@ -27,10 +27,13 @@ class ProductsController extends AppController
 
         $product = $mapper->findByID($this->request->id);
 
-        $content = $this->view->render('products/quickView/fragment', array('product' => $product));
-
         $response = new Response();
-        $response->ok($content);
+        if (isset($product)) {
+            $content = $this->view->render('products/quickView/fragment', array('product' => $product));
+            $response->ok($content);
+        } else {
+            $response->notFound('Product Not Found');
+        }
 
         return $response;
     }

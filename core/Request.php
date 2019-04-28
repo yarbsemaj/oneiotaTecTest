@@ -9,7 +9,7 @@ use core\routing\Route;
 class Request {
 
     protected $params;
-    protected $urlPrams;
+    protected $urlPrams = [];
     protected $route;
     protected $data;
 
@@ -67,7 +67,7 @@ class Request {
      */
     private function initialiseURLParams()
     {
-        if (!isset($this->urlPrams)) {
+        if (empty($this->urlPrams) && isset($this->route)) {
             preg_match_all('/{(.\S*?)}/', $this->getRoute()->getPattern(), $urlParamNames);
 
             $patten = str_replace('/', '\/', $this->getRoute()->getPattern());
